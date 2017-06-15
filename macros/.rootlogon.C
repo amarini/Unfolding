@@ -1,4 +1,4 @@
 {
 gSystem->AddIncludePath("-Ithe_include_path");
-gSystem->Load("../RooUnfold/libRooUnfold.so");
+gSystem->Load("../rooUnfold/libRooUnfold.so");
 }
