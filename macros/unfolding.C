@@ -9,8 +9,10 @@
 #include <TSVDUnfold.h>
 #include <TROOT.h>
 // nsel = 0 (mm) 1 (ee)
-//LO=0 (LO) 1(NLO)
-void unfolding(int nsel = 0,int LO = 1){
+//LO=0 (NLO) 1(LO)
+TFile* outFilePlots = new TFile("histoUnfolding.root","recreate");
+
+void helper_function(int nsel=0,int LO=1){
   TFile *_file0;
   TFile *_file1;
   TFile *_file2;
@@ -56,13 +58,41 @@ hReco->Scale(1,"width");
 xini->SetLineColor(2);
 xini->Scale(1,"width");
 xini->Draw("SAME");
+//CLONE
+char reco_name[100];
+TString input_name;
 
-char output[100];
-sprintf(output,"histoUnfolding_nsel%d_lo%d.root",nsel,LO); 
-TFile* outFilePlots = new TFile(output,"recreate");
+if (LO==0){
+   input_name=inputFileHist+"_NLO";
+   sprintf(reco_name,"reco_%d_NLO",nsel);
+ }
+else{
+   input_name=inputFileHist+"_LO";
+   sprintf(reco_name,"reco_%d_LO",nsel);
+
+ }
+TH1F *xini2 = (TH1F*)xini->Clone(input_name);
+TH1F *hReco2 = (TH1F*)hReco->Clone(reco_name);
+
 outFilePlots->cd();
-hReco->Write();
-xini->Write();
-outFilePlots->Close();
+
+
+
+
+
+hReco2->Write();
+xini2->Write();
+}
+
+
+void unfolding(){
+  
+  for (int i=0;i<2;i++){
+    for (int j=0;j<2;j++){
+      helper_function(i,j);
+
+    }
+  }
+  outFilePlots->Close();
 
 }
