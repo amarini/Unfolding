@@ -9,9 +9,7 @@
 #include <TSVDUnfold.h>
 #include <TROOT.h>
 // nsel = 0 (mm) 1 (ee)
-//LO=0 (NLO) 1(LO)
-TFile* outFilePlots = new TFile("histoUnfolding.root","recreate");
-
+// LO = 0 (NLO) 1 (LO)
 void helper_function(int nsel=0,int LO=1){
   TFile *_file0;
   TFile *_file1;
@@ -19,7 +17,7 @@ void helper_function(int nsel=0,int LO=1){
   if (LO == 0){
     _file0 = TFile::Open("inputs/histozllPtRec_NLO.root");
     _file1 = TFile::Open("inputs/histozllPtRecGen_NLO.root");
-  _file2 = TFile::Open("/afs/cern.ch/work/c/ceballos/public/samples/panda/v_004_0/DYJetsToLL_M-50_NLO.root");
+   _file2 = TFile::Open("/afs/cern.ch/work/c/ceballos/public/samples/panda/v_004_0/DYJetsToLL_M-50_NLO.root");
   }
   else{
     _file0 = TFile::Open("inputs/histozllPtRec_LO.root");
@@ -46,6 +44,7 @@ printf(" gen: %f\n",xini->GetSumOfWeights());
 
 int nReg = 5;
 RooUnfoldResponse theResponse(bini, xini, Adet);
+theResponse.UseOverflow(kTRUE);
 RooUnfoldBayes theRooUnfoldBayes(&theResponse, bdat, nReg);
 theRooUnfoldBayes.SetVerbose(-1);
 theRooUnfoldBayes.SetNToys(1000);
@@ -58,32 +57,16 @@ hReco->Scale(1,"width");
 xini->SetLineColor(2);
 xini->Scale(1,"width");
 xini->Draw("SAME");
-//CLONE
-char reco_name[100];
-TString input_name;
 
-if (LO==0){
-   input_name=inputFileHist+"_NLO";
-   sprintf(reco_name,"reco_%d_NLO",nsel);
- }
-else{
-   input_name=inputFileHist+"_LO";
-   sprintf(reco_name,"reco_%d_LO",nsel);
-
- }
-TH1F *xini2 = (TH1F*)xini->Clone(input_name);
-TH1F *hReco2 = (TH1F*)hReco->Clone(reco_name);
-
+char output[100];
+sprintf(output,"histoUnfolding_nsel%d_lo%d.root",nsel,LO); 
+TFile* outFilePlots = new TFile(output,"recreate");
 outFilePlots->cd();
+hReco->Write();
+xini->Write();
+outFilePlots->Close();
 
-
-
-
-
-hReco2->Write();
-xini2->Write();
 }
-
 
 void unfolding(){
   
