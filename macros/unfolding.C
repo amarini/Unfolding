@@ -10,18 +10,24 @@
 
 // nsel = 0 (mm) 1 (ee)
 // LO = 0 (NLO) 1 (LO)
-void helper_function(int nsel=0,int LO=1, int rebin=1){
+void helper_function(int nsel=0,int LO=1, int rebin=1, bool isFine = false, TString suffix = ""){
+  TString theInputFolder = "inputs";
+  TString theHistName = "";
+  if(isFine == true){
+    theInputFolder = "inputs_finerbinning";
+    theHistName = "Low";
+  }
   TFile *_file0;
   TFile *_file1;
   TFile *_file2;
   if (LO == 0){
-    _file0 = TFile::Open("inputs_finerbinning/histozllPtRec_NLO.root");
-    _file1 = TFile::Open("inputs_finerbinning/histozllPtRecGen_NLO.root");
+    _file0 = TFile::Open(Form("%s/histozllPtRec_NLO.root",theInputFolder.Data()));
+    _file1 = TFile::Open(Form("%s/histozllPtRecGen_NLO.root",theInputFolder.Data()));
     _file2 = TFile::Open("/afs/cern.ch/work/c/ceballos/public/samples/panda/v_004_0/DYJetsToLL_M-50_NLO.root");
   }
   else{
-    _file0 = TFile::Open("inputs_finerbinning/histozllPtRec_LO.root");
-    _file1 = TFile::Open("inputs_finerbinning/histozllPtRecGen_LO.root");
+    _file0 = TFile::Open(Form("%s/histozllPtRec_LO.root",theInputFolder.Data()));
+    _file1 = TFile::Open(Form("%s/histozllPtRecGen_LO.root",theInputFolder.Data()));
     _file2 = TFile::Open("/afs/cern.ch/work/c/ceballos/public/samples/panda/v_004_0/DYJetsToLL_M-50_LO.root");
   }
 
@@ -30,8 +36,8 @@ TH1D* bini = (TH1D*)_file0->Get(Form("histoPtRecDY_%d",nsel));
 
 TH2D* Adet = (TH2D*)_file1->Get(Form("histoPtRecGen_%d",nsel));
 
-TString inputFileHist = "hDDilLowPtMM";
-if(nsel == 1) inputFileHist = "hDDilLowPtEE";
+TString inputFileHist = Form("hDDil%sPtMM",theHistName.Data());
+if(nsel == 1) inputFileHist = Form("hDDil%sPtEE",theHistName.Data());
 TH1D* xini  = (TH1D*)_file2->Get(inputFileHist.Data());
 
 TH1D* hDNEvt  = (TH1D*)_file2->Get("hDTotalMCWeight");
@@ -50,8 +56,8 @@ printf(" gen: %f\n",xini->GetSumOfWeights());
 
 RooUnfoldResponse theResponse(bini, xini, Adet);
 theResponse.UseOverflow(kTRUE);
-RooUnfoldBayes theRooUnfoldBayes(&theResponse, bdat, 4);
-//RooUnfoldSvd theRooUnfoldBayes(&theResponse, bdat, 20);
+//RooUnfoldBayes theRooUnfoldBayes(&theResponse, bdat, 5);
+RooUnfoldSvd theRooUnfoldBayes(&theResponse, bdat, 30);
 //RooUnfoldTUnfold theRooUnfoldBayes(&theResponse, bdat);
 theRooUnfoldBayes.SetVerbose(-1);
 theRooUnfoldBayes.SetNToys(1000);
@@ -66,7 +72,7 @@ xini->Scale(1,"width");
 xini->Draw("SAME");
 
 char output[100];
-sprintf(output,"histoUnfolding_nsel%d_lo%d.root",nsel,LO); 
+sprintf(output,"histoUnfolding_nsel%d_lo%d_rebin%d%s.root",nsel,LO,rebin,suffix.Data()); 
 TFile* outFilePlots = new TFile(output,"recreate");
 outFilePlots->cd();
 hReco->Write();
@@ -75,10 +81,10 @@ outFilePlots->Close();
 
 }
 
-void unfolding(int rebin=10){
+void unfolding(int rebin=1, TString suffix = ""){
   for (int i=0;i<2;i++){
     for (int j=0;j<2;j++){
-      helper_function(i,j,rebin);
+      helper_function(i,j,rebin,false,suffix.Data());
 
     }
   }
