@@ -8,12 +8,12 @@
 #include <fstream>
 #include "TUnfoldDensity.h"
 
-const int nBinPt = 57;  Float_t xbinsPt[nBinPt+1]  = {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+const int nBinPt = 50;  Float_t xbinsPt[nBinPt+1]  = {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
 						       10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 						       20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 						       30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-						       40, 50, 60, 70, 80, 90,100,125,150,175, 
-        					      200,250,300,350,400,450,500,1000};
+						       40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+                                                       50};
 
 void atributes(TH1D *histo, TString xtitle="", Int_t COLOR = 1, TString ytitle="Fraction", Int_t style = 1){
   histo->ResetAttLine();
@@ -44,9 +44,9 @@ void atributes(TH1D *histo, TString xtitle="", Int_t COLOR = 1, TString ytitle="
   histo->SetMarkerStyle(kFullDotLarge);
   histo->SetLineStyle(style);
 }
-void makeSystHist(int nsel = 0, int whichDY = 1){
+void makeSystHistPt2(int nsel = 0, int whichDY = 1){
   gStyle->SetOptStat(0);
-  int version = 1; int alternative = 0;
+  int version = 1; int alternative = 2;
   if     (whichDY == 0) { version = 0; alternative = 1;}
   else if(whichDY == 2) { version = 2; alternative = 1;}
 
@@ -59,22 +59,22 @@ void makeSystHist(int nsel = 0, int whichDY = 1){
   histoSyst[5] = new TH1D(Form("histoSyst_%d",5),  Form("histoSyst_%d",5),  nBinPt, xbinsPt);
   histoSyst[6] = new TH1D(Form("histoSyst_%d",6),  Form("histoSyst_%d",6),  nBinPt, xbinsPt);
 
-  TFile *_file0 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_default.root",nsel,version)); // default NLO/LO
-  TFile *_file1 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_default.root",nsel,alternative)); // alternative LO/NLO
-  TFile *_file2 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_svd40.root",nsel,version)); // SVD alt
-  TFile *_file3 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_bayes10.root",nsel,version)); // Bayes alt
-  TFile *_file4 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_momres.root",nsel,version)); // MonRes
-  TFile *_file5 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_pdf.root",nsel,version)); // PDF bkg
-  TFile *_file6 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_qcd.root",nsel,version)); // QCD bkg.
+  TFile *_file0 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_default.root",nsel,version)); // default NLO/LO
+  TFile *_file1 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_default.root",nsel,alternative)); // alternative LO/NLO
+  TFile *_file2 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_svd40.root",nsel,version)); // SVD alt
+  TFile *_file3 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_bayes10.root",nsel,version)); // Bayes alt
+  TFile *_file4 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_momres.root",nsel,version)); // MonRes
+  TFile *_file5 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_pdf.root",nsel,version)); // PDF bkg
+  TFile *_file6 = TFile::Open(Form("output/histoUnfoldingPt2_nsel%d_dy%d_rebin1_qcd.root",nsel,version)); // QCD bkg.
 
-  TH1D* histDef = (TH1D*)_file0->Get(Form("histoPtRecGen_%d",nsel));
+  TH1D* histDef = (TH1D*)_file0->Get(Form("histoPt2RecGen_%d",nsel));
   TH1D* histAlt[6];
-  histAlt[0] = (TH1D*)_file1->Get(Form("histoPtRecGen_%d",nsel));
-  histAlt[1] = (TH1D*)_file2->Get(Form("histoPtRecGen_%d",nsel));
-  histAlt[2] = (TH1D*)_file3->Get(Form("histoPtRecGen_%d",nsel));
-  histAlt[3] = (TH1D*)_file4->Get(Form("histoPtRecGen_%d",nsel));
-  histAlt[4] = (TH1D*)_file5->Get(Form("histoPtRecGen_%d",nsel));
-  histAlt[5] = (TH1D*)_file6->Get(Form("histoPtRecGen_%d",nsel));
+  histAlt[0] = (TH1D*)_file1->Get(Form("histoPt2RecGen_%d",nsel));
+  histAlt[1] = (TH1D*)_file2->Get(Form("histoPt2RecGen_%d",nsel));
+  histAlt[2] = (TH1D*)_file3->Get(Form("histoPt2RecGen_%d",nsel));
+  histAlt[3] = (TH1D*)_file4->Get(Form("histoPt2RecGen_%d",nsel));
+  histAlt[4] = (TH1D*)_file5->Get(Form("histoPt2RecGen_%d",nsel));
+  histAlt[5] = (TH1D*)_file6->Get(Form("histoPt2RecGen_%d",nsel));
 
   double systVal[9][nBinPt],systTotalVal[nBinPt];
 
@@ -82,8 +82,8 @@ void makeSystHist(int nsel = 0, int whichDY = 1){
     for(int j=0; j<6; j++){
       systVal[j][i] = 100.*TMath::Abs(histDef->GetBinContent(i)-histAlt[j]->GetBinContent(i))/histDef->GetBinContent(i);
     }
-    if      (histDef->GetBinCenter(i)+histDef->GetBinWidth(i)/2<=40  && systVal[0][i] > 1.0) systVal[0][i] = 1.0;
-    else if (histDef->GetBinCenter(i)+histDef->GetBinWidth(i)/2<=100 && systVal[0][i] < 0.1) systVal[0][i] = 0.5;
+    //if      (histDef->GetBinCenter(i)+histDef->GetBinWidth(i)/2<=40  && systVal[0][i] > 1.0) systVal[0][i] = 1.0;
+    //else if (histDef->GetBinCenter(i)+histDef->GetBinWidth(i)/2<=100 && systVal[0][i] < 0.1) systVal[0][i] = 0.5;
     systVal[6][i] = 100.*histDef->GetBinError(i)/histDef->GetBinContent(i);
     systVal[7][i] = 100.*0.036;
     systVal[8][i] = 100.*0.023;
