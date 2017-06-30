@@ -66,38 +66,40 @@ void makeSystHist(int nsel = 0, int whichDY = 1){
   TFile *_file4 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_momres.root",nsel,version)); // MonRes
   TFile *_file5 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_pdf.root",nsel,version)); // PDF bkg
   TFile *_file6 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_qcd.root",nsel,version)); // QCD bkg.
+  TFile *_file7 = TFile::Open(Form("output/histoUnfolding_nsel%d_dy%d_rebin1_lepeff.root",nsel,version)); // LepEff
 
   TH1D* histDef = (TH1D*)_file0->Get(Form("histoPtRecGen_%d",nsel));
-  TH1D* histAlt[6];
+  TH1D* histAlt[7];
   histAlt[0] = (TH1D*)_file1->Get(Form("histoPtRecGen_%d",nsel));
   histAlt[1] = (TH1D*)_file2->Get(Form("histoPtRecGen_%d",nsel));
   histAlt[2] = (TH1D*)_file3->Get(Form("histoPtRecGen_%d",nsel));
   histAlt[3] = (TH1D*)_file4->Get(Form("histoPtRecGen_%d",nsel));
   histAlt[4] = (TH1D*)_file5->Get(Form("histoPtRecGen_%d",nsel));
   histAlt[5] = (TH1D*)_file6->Get(Form("histoPtRecGen_%d",nsel));
+  histAlt[6] = (TH1D*)_file7->Get(Form("histoPtRecGen_%d",nsel));
 
   double systVal[9][nBinPt],systTotalVal[nBinPt];
 
   for(int i=1; i<=histDef->GetNbinsX(); i++){
-    for(int j=0; j<6; j++){
+    for(int j=0; j<7; j++){
       systVal[j][i] = 100.*TMath::Abs(histDef->GetBinContent(i)-histAlt[j]->GetBinContent(i))/histDef->GetBinContent(i);
     }
     if      (histDef->GetBinCenter(i)+histDef->GetBinWidth(i)/2<=40  && systVal[0][i] > 1.0) systVal[0][i] = 1.0;
     else if (histDef->GetBinCenter(i)+histDef->GetBinWidth(i)/2<=100 && systVal[0][i] < 0.1) systVal[0][i] = 0.5;
-    systVal[6][i] = 100.*histDef->GetBinError(i)/histDef->GetBinContent(i);
-    systVal[7][i] = 100.*0.036;
+    //systVal[0][i] = 0.0;
+    systVal[7][i] = 100.*histDef->GetBinError(i)/histDef->GetBinContent(i); // stat
     systVal[8][i] = 100.*0.023;
-    printf("(%2d) %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",i,systVal[0][i],systVal[1][i],systVal[2][i],systVal[3][i],systVal[4][i],systVal[5][i],systVal[6][i]);
+    printf("(%2d) %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f %7.3f\n",i,systVal[0][i],systVal[1][i],systVal[2][i],systVal[3][i],systVal[4][i],systVal[5][i],systVal[6][i],systVal[7][i]);
     histoSyst[0]->SetBinContent(i,sqrt(systVal[0][i]*systVal[0][i]+systVal[1][i]*systVal[1][i]+systVal[2][i]*systVal[2][i]+
                                        systVal[3][i]*systVal[3][i]+systVal[4][i]*systVal[4][i]+systVal[5][i]*systVal[5][i]+
                                        systVal[6][i]*systVal[6][i]+systVal[7][i]*systVal[7][i]+systVal[8][i]*systVal[8][i]
                                        ));
-    histoSyst[1]->SetBinContent(i,sqrt(systVal[0][i]*systVal[0][i]+systVal[1][i]*systVal[1][i]+systVal[2][i]*systVal[2][i]));
-    histoSyst[2]->SetBinContent(i,systVal[3][i]);
-    histoSyst[3]->SetBinContent(i,sqrt(systVal[4][i]*systVal[4][i]+systVal[5][i]*systVal[5][i]));
-    histoSyst[4]->SetBinContent(i,systVal[6][i]);
-    histoSyst[5]->SetBinContent(i,systVal[7][i]);
-    histoSyst[6]->SetBinContent(i,systVal[8][i]);
+    histoSyst[1]->SetBinContent(i,sqrt(systVal[0][i]*systVal[0][i]+systVal[1][i]*systVal[1][i]+systVal[2][i]*systVal[2][i])); // unfolding
+    histoSyst[2]->SetBinContent(i,systVal[3][i]); // momres
+    histoSyst[3]->SetBinContent(i,sqrt(systVal[4][i]*systVal[4][i]+systVal[5][i]*systVal[5][i])); // Bkg.
+    histoSyst[4]->SetBinContent(i,systVal[6][i]); // LepEff
+    histoSyst[5]->SetBinContent(i,systVal[7][i]); // stat
+    histoSyst[6]->SetBinContent(i,systVal[8][i]); // lumi
   }
 
   atributes(histoSyst[0],"Z p_{T} [GeV]",1,"Uncertainty (%)", 1);
@@ -138,8 +140,8 @@ void makeSystHist(int nsel = 0, int whichDY = 1){
  leg->AddEntry(histoSyst[1],"Unfolding","l");
  leg->AddEntry(histoSyst[2],"Mom. Res.","l");
  leg->AddEntry(histoSyst[3],"Bkg.","l");
- leg->AddEntry(histoSyst[4],"Statistical","l");
- leg->AddEntry(histoSyst[5],"Identification","l");
+ leg->AddEntry(histoSyst[4],"Identification","l");
+ leg->AddEntry(histoSyst[5],"Statistical","l");
  leg->AddEntry(histoSyst[6],"Luminosity","l");
  leg->Draw();
 

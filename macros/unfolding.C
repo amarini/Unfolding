@@ -58,6 +58,10 @@ TH1D* hDNEvt  = (TH1D*)_file1->Get("hDTotalMCWeight");
 
 xini->Scale(theXS*theLumi/hDNEvt->GetSumOfWeights());
 
+bdat->Sumw2();
+bini->Sumw2();
+Adet->Sumw2();
+xini->Sumw2();
 bdat->Rebin(rebin);
 bini->Rebin(rebin);
 Adet->Rebin2D(rebin,rebin);
